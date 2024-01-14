@@ -16,6 +16,7 @@
 
 package io.github.accuser;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
@@ -27,80 +28,79 @@ import java.util.Objects;
  *      Records Service</a>
  */
 public final class ULN implements Comparable<ULN>, Serializable {
-	@java.io.Serial
-	private static final long serialVersionUID = 1L;
+    @Serial
+    private static final long serialVersionUID = 1L;
 
-	/**
-	 * Creates a new ULN object from the specified String value.
-	 * 
-	 * @param value the ULN value as a String
-	 * @return a ULN object
-	 */
-	public static ULN fromString(String value) {
-		return new ULN(ULNValidator.requireValidULN(value));
-	}
+    /**
+     * Creates a new ULN object from the specified String value.
+     * 
+     * @param value the ULN value as a String
+     * @return a ULN object
+     */
+    public static ULN fromString(String value) {
+        return new ULN(ULNValidator.requireValidULN(value));
+    }
 
-	/**
-	 * The ULN value as a String.
-	 * 
-	 * @serial
-	 */
-	private final String value;
+    /**
+     * The ULN value as a String.
+     */
+    @Serial
+    private final String value;
 
-	/**
-	 * Constructs a ULN object with the specified String value.
-	 * 
-	 * @param value the ULN value as a String
-	 */
-	private ULN(String value) {
-		this.value = value;
-	}
+    /**
+     * Constructs a ULN object with the specified String value.
+     * 
+     * @param value the ULN value as a String
+     */
+    private ULN(String value) {
+        this.value = value;
+    }
 
-	/**
-	 * Checks if this ULN is equal to the specified object.
-	 *
-	 * @param other the object to compare this ULN against
-	 * @return {@code true} if the given object represents a ULN equivalent to this
-	 *         ULN, {@code false} otherwise
-	 */
-	@Override
-	public boolean equals(Object other) {
-		if (this == other) {
-			return true;
-		}
+    /**
+     * Checks if this ULN is equal to the specified object.
+     *
+     * @param other the object to compare this ULN against
+     * @return {@code true} if the given object represents a ULN equivalent to this
+     *         ULN, {@code false} otherwise
+     */
+    @Override
+    public boolean equals(Object other) {
+        if (this == other) {
+            return true;
+        }
 
-		return (other instanceof ULN uln) && (this.value.equals(uln.value));
-	}
+        return (other instanceof ULN uln) && (this.value.equals(uln.value));
+    }
 
-	/**
-	 * Returns a hash code for this ULN.
-	 *
-	 * @return a hash code value for this ULN
-	 */
-	@Override
-	public int hashCode() {
-		return Objects.hash(this.value);
-	}
+    /**
+     * Returns a hash code for this ULN.
+     *
+     * @return a hash code value for this ULN
+     */
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.value);
+    }
 
-	/**
-	 * Returns a String representation of this ULN.
-	 *
-	 * @return a string representation of this ULN
-	 */
-	@Override
-	public String toString() {
-		return this.getClass().getSimpleName() + "(" + this.value + ")";
-	}
+    /**
+     * Returns a String representation of this ULN.
+     *
+     * @return a string representation of this ULN
+     */
+    @Override
+    public String toString() {
+        return this.getClass().getSimpleName() + "(" + this.value + ")";
+    }
 
-	/**
-	 * Compares this ULN with the specified ULN for order.
-	 *
-	 * @param other the ULN to compare with
-	 * @return a negative integer, zero, or a positive integer as this ULN is less
-	 *         than, equal to, or greater than the specified ULN
-	 */
-	@Override
-	public int compareTo(ULN other) {
-		return this.value.compareTo(other.value);
-	}
+    /**
+     * Compares this ULN with the specified ULN for order.
+     *
+     * @param other the ULN to compare with
+     * @return a negative integer, zero, or a positive integer as this ULN is less
+     *         than, equal to, or greater than the specified ULN
+     */
+    @Override
+    public int compareTo(ULN other) {
+        return this.value.compareTo(other.value);
+    }
 }
