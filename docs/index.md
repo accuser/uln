@@ -152,7 +152,7 @@ By switching to using Strings in our `ULN` class, we better capture the real-wor
 
 ## Improving Validation with Regular Expressions
 
-After considering the format of ULNs more carefully, we realize better way to do this is by using a regular expression. Here's a suitable pattern:
+After considering the format of ULNs more carefully, we relize there is a better way to do this is by using a regular expression. Here's a suitable pattern:
 
 ```java
 String ULN_REGEX = "^[0-9]{10}$";
