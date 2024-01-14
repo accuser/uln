@@ -1,14 +1,16 @@
-I want to build an application that will use ULNs to identify learners. A Unique Learner Number (ULN) is an identifier issued by the UK's Education & Skills Funding Agency (ESFA) to learners over the age of 13. An initial search explained that a ULN was 10 digits long. 
+# Managing Unique Learner Numbers (ULNs)
 
-I can use the `long` primative data type in Java to represent a ULN:
+Imagine we're building an app that needs to track students using their Unique Learner Numbers (ULNs). In the UK, a ULN is a special number given to students over 13 by the Education & Skills Funding Agency. Each ULN is a 10-digit number.
+
+Now, how do we handle these numbers in our Java program? We can use a `long` data type, which is just a way to store large numbers. Here's a simple example:
 
 ```java
 long uln = 42;
 ```
 
-As a ULN is only 10 digits long it can have values ranging from 0 to 9,999,999,999. The `long` primative in Java can actually have a value that ranges from -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807. 
+Since a ULN is 10 digits, it can range from 0 to 9,999,999,999. But the `long` type in Java can actually hold much bigger numbers, both positive and negative. So, we need to make sure the ULN numbers stay within our required range.
 
-I'll need to do something about that:
+Here's how we can do that:
 
 ```java
 long requireValidULN(long value) {
@@ -19,12 +21,14 @@ long requireValidULN(long value) {
     return value;
 }
 
-long uln1 = requireValidULN(42); // OK
-long uln2 = requireValidULN(-42); // fails
-long uln3 = requireValidULN(10_000_000_042); // fails
+long uln1 = requireValidULN(42); // This is fine
+long uln2 = requireValidULN(-42); // This will cause an error
+long uln3 = requireValidULN(10_000_000_042); // This too will cause an error
 ```
 
-This is reassuring but I still need to remember to use `requireValidULN()` when working with ULN values. Although, I can do better:
+The `requireValidULN()` function checks if the number is within our required range. If not, it stops the program with an error.
+
+To make things even better, let's create a ULN class:
 
 ```java
 public class ULN {
@@ -36,13 +40,13 @@ public class ULN {
 }
 ```
 
-I've defined a new class called `ULN` which has a single field called `value` to store the underlying value of the ULN. It is worth stopping for a moment to recognise how important clear naming is.
+Here, we've made a new class called `ULN`. It has one field, `value`, to store the ULN. We use clear names to make our code easy to understand.
 
-I've marked the field as both `private` and `final`:
- - `private` becuase the field is hidden from code outside the class.
- - `final` because the field is read-only &mdash; although the intial value does need to be set in the constructor.
+Notice two things about our `value` field:
+- It's `private`, meaning it can't be seen or changed by other parts of our program.
+- It's `final`, meaning once we set it, we can't change it.
 
-I can now include the earlier validation as a class method:
+Now, let's add our validation check to this class:
 
 ```java
 public class ULN {
@@ -61,16 +65,20 @@ public class ULN {
     }
 }
 
-ULN uln1 = new ULN(42); // OK
-ULN uln2 = new ULN(-42); // fails
-ULN uln3 = new ULN(10_000_000_042); // fails
+ULN uln1 = new ULN(42); // This works fine
+ULN uln2 = new ULN(-42); // This will throw an error
+ULN uln3 = new ULN(10_000_000_042); // This will also throw an error
 ```
 
-I now have a useful class to represent ULN values. 
+With this code, our `ULN` class not only stores the ULN value but also ensures it's valid right when we create a new `ULN` object. If we try to create a `ULN` with a number outside our acceptable range, our program will tell us there's a problem by throwing an error.
 
-Except that I noticed in the description of ULNs that they are padded with zeroes. This implies that I might need to expect `String` values like `"0000000042"` to be used to initialise a `ULN` object. I can reasonably expect that a valid ULN `String` value is going to be 10 characters long.
+We now have a neat and efficient way to handle ULN values in our Java application. We've created a special `ULN` class that takes care of storing the ULN and making sure it's a valid number. This approach makes our code more organized, easier to read, and helps prevent mistakes.
 
-There are a few ways to deal with this, but I think that parsing the `String` value to convert it into a `long` value might be the simplest:
+## Handling Zero-Padded ULN Values as Strings
+
+We've just realized something important about ULNs: they are written with leading zeros to make them exactly 10 digits long. For example, a ULN might look like `"0000000042"` instead of just `42`. This means our `ULN` class should also handle ULN values given as Strings, not just as long numbers.
+
+To do this, we can add a way to turn a String like `"0000000042"` into a long number. Here's how we can update our `ULN` class:
 
 ```java
 public class ULN {
@@ -78,7 +86,6 @@ public class ULN {
         if (value < 0 || value > 9_999_999_999) {
             throw new IllegalArgumentException("Invalid ULN value");
         }
-
         return value;
     }
 
@@ -90,35 +97,41 @@ public class ULN {
 
     public ULN(String value) {
         Objects.requireNonNull(value);
-                
-        this(Long.parseLong(value));
+        this.value = requireValidULN(Long.parseLong(value));
     }
 }
 
-ULN uln1 = new ULN("0000000042"); // OK
-ULN uln2 = new ULN(42); // OK
+ULN uln1 = new ULN("0000000042"); // This works fine
+ULN uln2 = new ULN(42); // This also works fine
 ```
 
-I've added a second constructor that takes a single `String` parameter. The Java compiler knows which constructor I want to use based on the type of the parameter.
+We've added a new way to create a `ULN` using a String. The program can tell which method to use (String or long) based on the type of data you give it. We also make sure the String is not `null`, because unlike a `long`, a String is an object that can be `null`.
 
-I've also added a check in the new constructor to ensure that I don't call it with a `null` value. This is important because a `String` is an object not a primative like a `long`. 
+But, we're not quite there yet.
 
-This doesn't feel right though.
+Remember, a ULN is a 10-digit number, usually filled with zeros to reach that length. While we could keep using a `long` to represent it, this doesn't fully capture the idea of a zero-padded 10-digit number. It makes more sense to update our class so that it accepts only valid String representations of a ULN.
 
-A ULN is supposed to be a 10-digit value, padded with zeroes. Whilst that could be represented as a `long` it is not really a `long`. I should really change our class so that only a valid `String` value &mdash; 10 digits, zero-padded &mdash; can be used to construct it. 
+Here's how we can modify the `ULN` class:
 
 ```java
 public class ULN {
     private static String requireValidULN(String value) {
         Objects.requireNonNull(value);
 
-        if (value.length != 10) {
-            throw new IllegalArgumentException("Invalid ULN value");
+        if (value.length() != 10) {
+            throw new IllegalArgumentException("Invalid ULN length");
+        }
+
+        // Ensure all characters are digits
+        for (int i = 0; i < value.length(); i++) {
+            if (!Character.isDigit(value.charAt(i))) {
+                throw new IllegalArgumentException("Invalid ULN character");
+            }
         }
 
         return value;
     }
-    
+
     private final String value;
 
     public ULN(String value) {
@@ -127,23 +140,31 @@ public class ULN {
 }
 
 ULN uln1 = new ULN("0000000042"); // OK
-ULN uln2 = new ULN("42"); // fails
-ULN uln3 = new ULN("chimpanzee"); // OK?!
+ULN uln2 = new ULN("42"); // This will fail
+ULN uln3 = new ULN("chimpanzee"); // This will also fail
 ```
 
-So, just checking the length the `value` might not be enough. I can use a regular expression to check that all the characters are digits (0-9) and that there are 10 of them:
+In this version, we've changed the `ULN` class to only accept Strings. We added a new method `requireValidULN` that checks if the String is exactly 10 characters long and if each character is a digit. This ensures that only proper ULN Strings, like "0000000042", are accepted. 
+
+If the String isn't 10 digits or contains non-digit characters, our method throws an error, telling us something is wrong. This way, we can be confident that any `ULN` object we create will have a valid ULN value.
+
+By switching to using Strings in our `ULN` class, we better capture the real-world format of ULNs. We make sure each ULN is exactly 10 digits long and filled with zeros as needed, just like actual ULNs. This makes our code more accurate and aligns it more closely with how ULNs are used in the real world.
+
+## Improving Validation with Regular Expressions
+
+After considering the format of ULNs more carefully, we realize better way to do this is by using a regular expression. Here's a suitable pattern:
 
 ```java
 String ULN_REGEX = "^[0-9]{10}$";
 ```
 
-Reading from left to right:
-- `^` asserts position at start of the line
-- `[0-9]` matches a single character in the range between 0 and 9
-- `{10}` matches the previous token exactly 10 times
-- `$` asserts position at the end of a line
+Let's break down what this pattern means:
+- `^` ensures the matching starts at the beginning of the text.
+- `[0-9]` checks for a single digit between 0 and 9.
+- `{10}` means we expect exactly 10 of the previous pattern (so, 10 digits).
+- `$` ensures the matching ends at the end of the text.
 
-I can use this regular expression in a couple of ways, but for now:
+This regular expression helps us confirm that a given String is exactly 10 digits long with no other characters. Here's how we use it in our `ULN` class:
 
 ```java
 public class ULN {
@@ -152,7 +173,7 @@ public class ULN {
     private static String requireValidULN(String value) {
         Objects.requireNonNull(value);
 
-        if (!value.match(ULN_REGEX)) {
+        if (!value.matches(ULN_REGEX)) {
             throw new IllegalArgumentException("Invalid ULN value");
         }
 
@@ -166,25 +187,25 @@ public class ULN {
     }
 }
 
-ULN uln1 = new ULN("0000000042"); // OK
-ULN uln2 = new ULN("42"); // fails
-ULN uln3 = new ULN("chimpanzee"); // fails
+ULN uln1 = new ULN("0000000042"); // Works correctly
+ULN uln2 = new ULN("42"); // Fails, as it should
+ULN uln3 = new ULN("chimpanzee"); // Also fails, correctly
 ```
 
-This is starting to look good, maybe I should be commiting this to main?
+By integrating this regular expression, we've significantly enhanced the validation in our `ULN` class. Now, it not only checks for the correct length but also ensures that every character is a digit. This approach makes our ULN representation robust and more reliable.
 
-Actually, there is something else: not all of those 10-digits are equal. I've just seen the specification for validating ULNs and I've realised the the 10th digit (the rightmost) is a check digit, and there is an [algorithm](https://assets.publishing.service.gov.uk/media/5cb0e65ce5274a76c9b3299a/WSLP02_ULN_Validation_v3.pdf) that I can apply to calculate it:
-    
-1. Take the first 9 digits of the ULN.
-2. Sum 10 × first digit + 9 × second digit + 8 × third digit + 7 × fourth digit + 6 × fifth digit + 5 × sixth digit + 4 × seventh digit + 3 × eighth digit + 2 × ninth digit
-3. Divide this number by 11 and find the remainder (modulo function). If the remainder is 0, the ULN is invalid.
-4. Subtract the remainder from 10. If it matches the tenth digit from the entered ULN, the ULN format is valid.
+Considering how our `ULN` class is shaping up, it might be a good time to start thinking about adding this to the main codebase. It's always a good idea to commit code in small, manageable pieces, and our `ULN` class seems ready for that step.
 
-There are a couple of things to note: the multiplication factor in step 2 is a sequence (10, 9, 8, ...) and I need to use a modulo operator to calculate a remainder.
+## Enhanced ULN Validation with a Check Digit
 
-I want to iterate over the first 9 digits of the ULN to calculate the sum, so a `for` loop is probably in order.  I can use the current index of the loop to work out the multiplication factor too. 
+Upon further review, we've discovered that the 10-digit ULN has an additional complexity: the 10th digit is a check digit, based on a specific [validation algorithm](https://assets.publishing.service.gov.uk/media/5cb0e65ce5274a76c9b3299a/WSLP02_ULN_Validation_v3.pdf). Here's how it works:
 
-Let's assume I can isolate the first 9 digits for now. 
+1. Extract the first 9 digits of the ULN.
+2. Perform a weighted sum: multiply each digit by a decreasing factor (starting from 10 for the first digit to 2 for the ninth), and add these products.
+3. Divide this sum by 11 and obtain the remainder. If the remainder is 0, the ULN is invalid.
+4. Subtract the remainder from 10. The result should match the tenth (check) digit for a valid ULN.
+
+Let's implement this algorithm. A `for` loop seems appropriate to iterate over the first 9 digits. Assuming we've isolated these digits:
 
 ```java
 int calculateSum(String digits) {
@@ -198,27 +219,15 @@ int calculateSum(String digits) {
 }
 ```
 
-The `Character` class is very useful here. The static method `getNumericValue` converts a single numeric character into the corresponding numeric value: a `"1"` is converted into `1`. 
+The `Character.getNumericValue` method is useful here, converting a character to its numeric value.
 
-I just need to get those 9 digits and the check digit from the `String` value. I could do some `String` manipulation, but I'm already using a regular express to validate the format of the ULN. I can rewite the regular expression to be more explicit about the format:
-
-```java
-String ULN_REGEX = "^[0-9]{9}[0-9]$";
-```
-
-This will match a `String` value that has 9 digits and then another digit. It is essentially the same as the previous regular expression, but I've split the expression into two parts. I can group those parts.
+Next, we need to extract the 9 digits and the check digit from the ULN. Since we're already using a regex for basic validation, let's refine it to capture these parts separately:
 
 ```java
-String ULN_REGEX = "^([0-9]{9})([0-9])$";
+String ULN_REGEX = "^(?<digits>[0-9]{9})(?<checkDigit>[0-9])$";
 ```
 
-The `(` and `)` in the regular expression define a capturing group. The regular expression doesn't just match, it captures the sequence of characters in each capturing group. This is really useful, but I can do better.
-
-```java
-String ULN_REGEX = "^(?<digits>[0-9]{9})(?<checkDigit>[0-9]{1})$";
-```
-
-I've named the capturing groups. If there is a match, I can refer to those captured groups by name. This is how:
+By naming the capturing groups (`digits` and `checkDigit`), we can extract them easily after matching:
 
 ```java
 boolean isValidULN(String value) {
@@ -242,51 +251,49 @@ boolean isValidULN(String value) {
 }
 ```
 
-Let me explain:
+Here's a breakdown of what happens:
 
-```
-Pattern pattern = Pattern.compile(ULN_REGEX);
-Matcher matcher = pattern.matcher(value);
-```
+1. **Compile and match the regular expression:**
+   ```java
+   Pattern pattern = Pattern.compile(ULN_REGEX);
+   Matcher matcher = pattern.matcher(value);
+   ```
+   The regex is compiled for pattern matching. Using this pattern, a matcher checks if `value` conforms to the specified format.
 
-The regular expression is compiled so that it can be used for pattern matching, and than I use that pattern to build a matcher that will match the `value`. This is a slightly more involved used of regular expression than before, but we can assumed that `value.match(ULN_REGEX)` does a lot of this itself.
+2. **Check for a match and throw en exception if needed:**
+   ```java
+   if (!matcher.find()) {
+       throw new IllegalArgumentException("Invalid ULN format");
+   }
+   ```
+   If there's no match, the ULN format is incorrect, and an exception is thrown. This ensures all following operations are performed on a properly formatted ULN.
 
-```java
-if (!matcher.find()) {
-    throw new IllegalArgumentException("Invalid ULN format");
-}
-```
+3. **Extract digits and check digit:**
+   ```java
+   String digits = matcher.group("digits");
+   Character checkDigit = matcher.group("checkDigit").charAt(0);
+   ```
+   The first 9 digits and the check digit are extracted using the named capturing groups from the regex.
 
-This is pretty straightforward: if the `matcher` can't find a match, the `String` value is not the correct format, so throw an expception. What this also means is that all the statements that follow this `if` statement are going to be executing with the assurity that there is a match.
+4. **Calculate sum and validate check digit:**
+   ```java
+   int remainder = calculateSum(digits) % 11;
 
-```java
-String digits = matcher.group("digits");
-Character checkDigit = matcher.group("checkDigit").charAt(0);
-```
+   if (remainder == 0) {
+      return false;
+   }
 
-`matcher.group("digits")` returns the capatured group named `digits`, as `matcher.group("checkDigit")` return the capture group named `checkDigit`. I've now isolated those first 9 digits, and I've got the check digit too.
+   return (Character.forDigit(10 - remainder, 10) == checkDigit);
+   ```
+   The sum of the first 9 digits is calculated, and the modulo operation determines the remainder. If the remainder is 0, the ULN is invalid. Otherwise, the method checks if the calculated check digit matches the actual check digit.
 
-```java
-int remainder = calculateSum(digits) % 11;
-
-if (remainder == 0) {
-   return false;
-}
-```
-
-I can use the `digits` to calculate the sum and then apply the modulo operator (`%`) to find the remainder. If the remainder is 0, the ULN is not a valid value. I return `false`, because the answer to the question `isValidULN` is no. I don't throw an exception: the format of the ULN value is correct, it is just that the value is not valid. 
-
-```
-return (Character.forDigit(10 - remainder, 10) == checkDigit);
-```
-
-If the checksum for the first 9 digits is equal to the check digit, this is a valid ULN value.
-
-Adding this all to the `ULN` class:
+This logic can now be integrated into the `ULN` class:
 
 ```java
 public class ULN {
-    private static final String ULN_REGEX = "^(?<digits>[0-9]{9})(?<checkDigit>[0-9]{1})$";
+    private static final String ULN_REGEX = "^(?<digits>[0-9]{9})(?<checkDigit>[0-9])$";
+
+    // ...truncated
 
     private static int calculateSum(String digits) {
         int sum = 0;
@@ -321,13 +328,13 @@ public class ULN {
     private static String requireValidULN(String value) {
         Objects.requireNonNull(value);
 
-        if (!value.match(ULN_REGEX)) {
+        if (!isValidULN(value)) {
             throw new IllegalArgumentException("Invalid ULN value");
         }
 
         return value;
     }
-    
+
     private final String value;
 
     public ULN(String value) {
@@ -336,17 +343,21 @@ public class ULN {
 }
 
 ULN uln1 = new ULN("0000000042"); // OK
-ULN uln2 = new ULN("0000000043"); // fails - but this is expected behavior
+ULN uln2 = new ULN("0000000043"); // fails, which is the expected behavior
 ```
 
-I think that it is a good idea for a constructor to not fail. I'm going to add a factory method to the class that will do the validation before constructing the `ULN` object. I'll make the class constructor private so that only the factory method can be used.
+By implementing these changes, the `ULN` class now not only checks the format but also validates the ULN against the specified check digit algorithm, ensuring a robust validation process.
+
+## Introducing a Factory Method for ULN Construction
+
+To enhance the robustness of the `ULN` class, we've decided to implement a factory method for object creation. This approach ensures that a `ULN` instance is only created if it passes the validation checks. The constructor of the class will be made private, so the object instantiation is controlled through the factory method. Here's how this is implemented:
 
 ```java
 public class ULN {
     // ...truncated
 
     public static ULN fromString(String value) {
-        new ULN(requireValidULN(value));
+        return new ULN(requireValidULN(value));
     }
 
     private ULN(String value) {
@@ -355,95 +366,118 @@ public class ULN {
 }
 
 ULN uln1 = ULN.fromString("0000000042"); // OK
-ULN uln2 = ULN.fromString("0000000043"); // fails - but this is expected behavior
+ULN uln2 = ULN.fromString("0000000043"); // Fails - expected behavior
 ```
 
-The constructor is only called with a valid value, so if we have a `ULN` object we know that it is valid.
+1. **Factory method `fromString`:**
+   - The `fromString` method acts as the public interface for creating `ULN` instances. It calls `requireValidULN` to perform all necessary validations.
+   - If the validation succeeds, a new `ULN` object is created and returned.
 
-I'm nearly finished, but I want to add a few more methods. To make the `ULN` class work well in any Java program it would be helpful if it acted like a real `Object`, it could be serialized, and it could be compared for sorting. 
+2. **Private constructor:**
+   - By making the constructor private, we ensure that `ULN` objects can only be instantiated through the `fromString` method.
+   - This encapsulation guarantees that every `ULN` object is valid at the time of creation, as it has passed through the rigorous validation process.
 
-I'll start with the `Object` methods that I want to override: `equals`, `hashCode`, and `toString`.
+3. **Usage:**
+   - The usage of the `ULN` class is now through the static `fromString` method. This method returns a new `ULN` object if the input String is valid, otherwise, it throws an exception.
+   - The examples `uln1` and `uln2` demonstrate the method in action. `uln1` is created successfully with a valid ULN string, while `uln2` fails due to an invalid ULN, which is the expected behavior.
 
-```java
-public class ULN {
-    // ...truncated
+There are some real benefits to adopting this approach:
+- **Consistency and Safety:** Since the validation is centralized in the factory method, every `ULN` object created is guaranteed to be valid. This adds an extra layer of consistency and safety in the use of the `ULN` class.
+- **Better Control:** The private constructor limits object creation to the factory method, providing better control over how `ULN` objects are instantiated.
+- **Clear Intentions:** The use of a named method like `fromString` makes it clear that a `ULN` instance is being created from a string representation, enhancing code readability.
 
-    @Override
-	public boolean equals(Object other) {
-		if (this == other) {
-			return true;
-		}
+By adopting this pattern, the `ULN` class becomes more robust and its usage more intuitive, while still enforcing strict validation rules for creating valid ULN objects.
 
-		return (other instanceof ULN uln) && (this.value.equals(uln.value));
-	}
-}
-```
+## Enhancing the ULN Class with Essential Java Features
 
-This is quite straightforward: I want to be able to see if two `ULN` objects are equal. The first `if` statement will return `true` if `this` and `other` are the same, i.e., if I had done something like:
+As we near completion of the `ULN` class, our goal is to integrate key Java functionalities that will make it fully compatible with Java's ecosystem. This involves making the `ULN` class behave like a true Java `Object`, enabling serialization, and ensuring it can be used in sorting operations. Here's a look at the methods we've added:
 
-```java
-ULN uln1 = ULN.fromString("0000000042");
+**Overriding Standard** `Object` **Methods:** `equals`**,** `hashCode`**,** **and** `toString`
 
-if (uln1.equals(uln1)) {
-    // ...
-}
-```
+- `equals` method:
 
-I'd never knowingly do that, but it is worth checking. 
+    ```java
+    public class ULN {
+        // ...truncated
 
-The `return` statement evaluates the expression `other instanceof ULN uln` by first checking if `other` is an instance of `ULN`, and if it is, creates a new variable `uln` of type `ULN` that I can use in rest of the statement. This is really useful, and avoid me having to cast `other` as `ULN`. It also means that if the first expression is `true` (i.e., `other` is an instance of `ULN`) then the return statement will evaluate the second expression `this.value.equals(uln.value)`, which is `true` if the `value` field of `this` is equal to the `value` field of `uln`. Notice that I defer to the `equals()` of the `value` field here.
-
-```java
-public class ULN {
-    // ...truncated
-
-    @Override
-    public int hashCode() {
-		return Objects.hash(this.value);
-	}
-}
-```
-
-`hashCode()` is quite straightforward: I'm using `this.value` for the `equals()` comparrison, and so I should use `this.value` to calculate the hash code of the object.
-
-```java
-public class ULN {
-    // ...truncated
-
-    @Override
-	public String toString() {
-		return this.getClass().getSimpleName() + "(" + this.value + ")";
-	}
-}
-```
-
-`toString()` wraps `value` in with `ULN(` and `)`. If value was `"0000000042"` then `toString()` would return `"ULN(0000000042)"`.
-
-Serialization is a feature that allows objects to be written to and read from streams, which enables them to be persisted (saved) or transferred (sent or recevied). For such a simple object, it is quite straightforward to implement:
-
-```java
-public class ULN implements Serializable {   
-    // ...truncated
-
-    @Serial
-	private static final long serialVersionUID = 1L;
-
-    @Serial
-	private final String value;
-}
-```
-
-Finaly, I want to implent `Comparable<T>` that adds an interface for comparing two objects for sorting. As with `equals()` and `hashCode()`, I can delegate to the underlying `value` field.
-
-```java
-public class ULN implements Comparable<ULN>, Serializable {
-    // ...truncated
-
-    @Override
-    public int compareTo(ULN other) {
-        return this.value.compareTo(other.value);
+        @Override
+        public boolean equals(Object other) {
+            if (this == other) {
+                return true;
+            }
+            return (other instanceof ULN uln) && (this.value.equals(uln.value));
+        }
     }
-}
-```
+    ```
 
-I think that is everything. The finished class can be found in the [`io.github.accuser.uln`](https://github.com/accuser/uln) repo.
+    This method checks if two `ULN` objects are equal. The first check (`this == other`) confirms if both references point to the same object. The second part uses the `instanceof` operator with a pattern variable `uln`, which both checks the type and casts `other` to `ULN` if they are of the same type. It then compares the `value` fields of both objects.
+
+- `hashCode` method:
+
+    ```java
+    public class ULN {
+        // ...truncated
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.value);
+        }
+    }
+    ```
+
+    The `hashCode()` implementation uses the `value` field to calculate the hash code, ensuring consistency with the `equals` method.
+
+- `toString` Method:
+
+    ```java
+    public class ULN {
+        // ...truncated
+
+        @Override
+        public String toString() {
+            return this.getClass().getSimpleName() + "(" + this.value + ")";
+        }
+    }
+    ```
+
+    The `toString()` method formats the `ULN` object as a readable string by wrapping the `value` in a format like "ULN(0000000042)" if the `value` is `"0000000042"`.
+
+### Implementing Serialization
+
+   Serialization allows a `ULN` object to be easily saved, transferred, or persisted. To implement this, the `ULN` class is made serializable:
+
+   ```java
+   public class ULN implements Serializable {   
+       // ...truncated
+
+       @Serial
+       private static final long serialVersionUID = 1L;
+
+       @Serial
+       private final String value;
+   }
+   ```
+
+   Here, the class is marked with `Serializable`, and we've included a `serialVersionUID` for version control of the object's serialized form. The `value` field is also serialized as part of the object.
+
+### Adding Comparison Capabilities for Sorting
+
+   By implementing the `Comparable<T>` interface, `ULN` objects can be sorted based on their `value`:
+
+   ```java
+   public class ULN implements Comparable<ULN>, Serializable {
+       // ...truncated
+
+       @Override
+       public int compareTo(ULN other) {
+           return this.value.compareTo(other.value);
+       }
+   }
+   ```
+
+   The `compareTo` method delegates the comparison to the `value` field, allowing `ULN` objects to be ordered in a natural sorting order based on their `value`.
+
+
+With these enhancements, the `ULN` class is now fully equipped for robust use in Java applications. It adheres to Java's standard practices for object comparison, hashing, string representation, serialization, and sorting, making it a well-integrated and functional component. 
+
+The complete implementation of this class is available in the [`io.github.accuser.uln`](https://github.com/accuser/uln) repository.
