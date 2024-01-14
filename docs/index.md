@@ -440,7 +440,7 @@ As we near completion of the `ULN` class, our goal is to integrate key Java func
     }
     ```
 
-    The `toString()` method formats the `ULN` object as a readable string by wrapping the `value` in a format like "ULN(0000000042)" if the `value` is `"0000000042"`.
+    The `toString()` method formats the `ULN` object as a readable string by wrapping the `value` in a format like `"ULN(0000000042)"` if the `value` is `"0000000042"`.
 
 ### Implementing Serialization
 
