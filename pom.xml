@@ -3,7 +3,7 @@
 
     <groupId>io.github.accuser</groupId>
     <artifactId>uln</artifactId>
-    <version>1.0.1</version>
+    <version>1.0.2-SNAPSHOT</version>
     <name>ULN</name>
     <description>Unique Learner Number (ULN) class and supporting validator.</description>
     <url>https://accuser.github.io/uln</url>
@@ -29,7 +29,7 @@
 
     <scm>
         <connection>scm:git:https://github.com/accuser/uln.git</connection>
-        <tag>uln-1.0.1</tag>
+        <tag>uln-1.0.0</tag>
         <url>https://github.com/accuser/uln</url>
     </scm>
 
