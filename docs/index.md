@@ -28,7 +28,7 @@ long uln3 = requireValidULN(10_000_000_042); // This too will cause an error
 
 The `requireValidULN()` function checks if the number is within our required range. If not, it stops the program with an error.
 
-To make things even better, let's create a ULN class:
+To make things even better, let's create a ULN data type:
 
 ```java
 public class ULN {
@@ -72,13 +72,13 @@ ULN uln3 = new ULN(10_000_000_042); // This will also throw an error
 
 With this code, our `ULN` class not only stores the ULN value but also ensures it's valid right when we create a new `ULN` object. If we try to create a `ULN` with a number outside our acceptable range, our program will tell us there's a problem by throwing an error.
 
-We now have a neat and efficient way to handle ULN values in our Java application. We've created a special `ULN` class that takes care of storing the ULN and making sure it's a valid number. This approach makes our code more organized, easier to read, and helps prevent mistakes.
+We now have a neat and efficient way to handle ULN values in our Java application. We've created a special `ULN` class that takes care of storing the ULN and making sure it's a valid number. This approach makes our code more organised, easier to read, and helps prevent mistakes.
 
 ## Handling Zero-Padded ULN Values as Strings
 
 We've just realized something important about ULNs: they are written with leading zeros to make them exactly 10 digits long. For example, a ULN might look like `"0000000042"` instead of just `42`. This means our `ULN` class should also handle ULN values given as Strings, not just as long numbers.
 
-To do this, we can add a way to turn a String like `"0000000042"` into a long number. Here's how we can update our `ULN` class:
+To do this, we can add a way to turn a `String` like `"0000000042"` into a `long` number. Here's how we can update our `ULN` class:
 
 ```java
 public class ULN {
@@ -105,11 +105,11 @@ ULN uln1 = new ULN("0000000042"); // This works fine
 ULN uln2 = new ULN(42); // This also works fine
 ```
 
-We've added a new way to create a `ULN` using a String. The program can tell which method to use (String or long) based on the type of data you give it. We also make sure the String is not `null`, because unlike a `long`, a String is an object that can be `null`.
+We've added a new way to create a `ULN` using a `String`. The program can tell which method to use based on the type of data (`String` or `long`) we give it. We also make sure the `String` is not `null`, because unlike a `long`, a `String` is an object that can be `null`.
 
 But, we're not quite there yet.
 
-Remember, a ULN is a 10-digit number, usually filled with zeros to reach that length. While we could keep using a `long` to represent it, this doesn't fully capture the idea of a zero-padded 10-digit number. It makes more sense to update our class so that it accepts only valid String representations of a ULN.
+Remember, a ULN is a 10-digit number, usually filled with zeros to reach that length. While we could keep using a `long` to represent it, this doesn't fully capture the idea of a zero-padded 10-digit number. It makes more sense to update our class so that it accepts only valid `String` representations of a ULN.
 
 Here's how we can modify the `ULN` class:
 
@@ -144,15 +144,15 @@ ULN uln2 = new ULN("42"); // This will fail
 ULN uln3 = new ULN("chimpanzee"); // This will also fail
 ```
 
-In this version, we've changed the `ULN` class to only accept Strings. We added a new method `requireValidULN` that checks if the String is exactly 10 characters long and if each character is a digit. This ensures that only proper ULN Strings, like "0000000042", are accepted. 
+In this version, we've changed the `ULN` class to only accept `String` values. We added a new method `requireValidULN` that checks if the value is exactly 10 characters long and if each character is a digit. This ensures that only proper ULN string values, like "0000000042", are accepted.
 
-If the String isn't 10 digits or contains non-digit characters, our method throws an error, telling us something is wrong. This way, we can be confident that any `ULN` object we create will have a valid ULN value.
+If the value isn't 10 digits or contains non-digit characters, our method throws an error, telling us something is wrong. This way, we can be confident that any `ULN` object we create will have a valid ULN value.
 
-By switching to using Strings in our `ULN` class, we better capture the real-world format of ULNs. We make sure each ULN is exactly 10 digits long and filled with zeros as needed, just like actual ULNs. This makes our code more accurate and aligns it more closely with how ULNs are used in the real world.
+By switching to using string values in our `ULN` class, we better capture the real-world format of ULNs. We make sure each ULN is exactly 10 digits long and filled with zeros as needed, just like actual ULNs. This makes our code more accurate and aligns it more closely with how ULNs are used in the real world.
 
 ## Improving Validation with Regular Expressions
 
-After considering the format of ULNs more carefully, we relize there is a better way to do this is by using a regular expression. Here's a suitable pattern:
+After considering the format of ULNs more carefully, we realise there is a better way to do this is by using a regular expression. Here's a suitable pattern:
 
 ```java
 String ULN_REGEX = "^[0-9]{10}$";
@@ -181,7 +181,7 @@ public class ULN {
     }
 
     private final String value;
-    
+
     public ULN(String value) {
         this.value = requireValidULN(value);
     }
@@ -319,7 +319,7 @@ public class ULN {
         int remainder = calculateSum(digits) % 11;
 
         if (remainder == 0) {
-        return false;
+            return false;
         }
 
         return (Character.forDigit(10 - remainder, 10) == checkDigit);
@@ -343,7 +343,7 @@ public class ULN {
 }
 
 ULN uln1 = new ULN("0000000042"); // OK
-ULN uln2 = new ULN("0000000043"); // fails, which is the expected behavior
+ULN uln2 = new ULN("0000000043"); // fails, which is the expected behaviour
 ```
 
 By implementing these changes, the `ULN` class now not only checks the format but also validates the ULN against the specified check digit algorithm, ensuring a robust validation process.
@@ -366,7 +366,7 @@ public class ULN {
 }
 
 ULN uln1 = ULN.fromString("0000000042"); // OK
-ULN uln2 = ULN.fromString("0000000043"); // Fails - expected behavior
+ULN uln2 = ULN.fromString("0000000043"); // Fails - expected behaviour
 ```
 
 1. **Factory method `fromString`:**
@@ -379,10 +379,10 @@ ULN uln2 = ULN.fromString("0000000043"); // Fails - expected behavior
 
 3. **Usage:**
    - The usage of the `ULN` class is now through the static `fromString` method. This method returns a new `ULN` object if the input String is valid, otherwise, it throws an exception.
-   - The examples `uln1` and `uln2` demonstrate the method in action. `uln1` is created successfully with a valid ULN string, while `uln2` fails due to an invalid ULN, which is the expected behavior.
+   - The examples `uln1` and `uln2` demonstrate the method in action. `uln1` is created successfully with a valid ULN string, while `uln2` fails due to an invalid ULN, which is the expected behaviour.
 
 There are some real benefits to adopting this approach:
-- **Consistency and Safety:** Since the validation is centralized in the factory method, every `ULN` object created is guaranteed to be valid. This adds an extra layer of consistency and safety in the use of the `ULN` class.
+- **Consistency and Safety:** Since the validation is centralised in the factory method, every `ULN` object created is guaranteed to be valid. This adds an extra layer of consistency and safety in the use of the `ULN` class.
 - **Better Control:** The private constructor limits object creation to the factory method, providing better control over how `ULN` objects are instantiated.
 - **Clear Intentions:** The use of a named method like `fromString` makes it clear that a `ULN` instance is being created from a string representation, enhancing code readability.
 
@@ -392,7 +392,7 @@ By adopting this pattern, the `ULN` class becomes more robust and its usage more
 
 As we near completion of the `ULN` class, our goal is to integrate key Java functionalities that will make it fully compatible with Java's ecosystem. This involves making the `ULN` class behave like a true Java `Object`, enabling serialization, and ensuring it can be used in sorting operations. Here's a look at the methods we've added:
 
-**Overriding Standard** `Object` **Methods:** `equals`**,** `hashCode`**,** **and** `toString`
+### Overriding Standard `Object` Methods: `equals`, `hashCode`, and `toString`
 
 - `equals` method:
 
@@ -442,12 +442,12 @@ As we near completion of the `ULN` class, our goal is to integrate key Java func
 
     The `toString()` method formats the `ULN` object as a readable string by wrapping the `value` in a format like `"ULN(0000000042)"` if the `value` is `"0000000042"`.
 
-### Implementing Serialization
+### Implementing Serialisation
 
-   Serialization allows a `ULN` object to be easily saved, transferred, or persisted. To implement this, the `ULN` class is made serializable:
+   Serialisation allows a `ULN` object to be easily saved, transferred, or persisted. To implement this, the `ULN` class is made serializable:
 
    ```java
-   public class ULN implements Serializable {   
+   public class ULN implements Serializable {
        // ...truncated
 
        @Serial
@@ -458,7 +458,7 @@ As we near completion of the `ULN` class, our goal is to integrate key Java func
    }
    ```
 
-   Here, the class is marked with `Serializable`, and we've included a `serialVersionUID` for version control of the object's serialized form. The `value` field is also serialized as part of the object.
+   Here, the class is marked with `Serializable`, and we've included a `serialVersionUID` for version control of the object's serialized form. The `value` field is also serialised as part of the object.
 
 ### Adding Comparison Capabilities for Sorting
 
@@ -478,6 +478,6 @@ As we near completion of the `ULN` class, our goal is to integrate key Java func
    The `compareTo` method delegates the comparison to the `value` field, allowing `ULN` objects to be ordered in a natural sorting order based on their `value`.
 
 
-With these enhancements, the `ULN` class is now fully equipped for robust use in Java applications. It adheres to Java's standard practices for object comparison, hashing, string representation, serialization, and sorting, making it a well-integrated and functional component. 
+With these enhancements, the `ULN` class is now fully equipped for robust use in Java applications. It adheres to Java's standard practices for object comparison, hashing, string representation, serialization, and sorting, making it a well-integrated and functional component.
 
 The complete implementation of this class is available in the [`io.github.accuser.uln`](https://github.com/accuser/uln) repository.
